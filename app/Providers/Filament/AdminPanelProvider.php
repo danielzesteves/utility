@@ -2,21 +2,25 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
+use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Filament\Http\Middleware\Authenticate;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use DutchCodingCompany\FilamentSocialite\Models\SocialiteUser;
+use Laravel\Socialite\Contracts\User as SocialiteUserContract;
+use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -53,6 +57,39 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->plugin(
+                FilamentSocialitePlugin::make()
+                    // (required) Add providers corresponding with providers in `config/services.php`.
+                    ->setProviders([
+                        'github' => [
+                            'label' => 'GitHub',
+                            // Custom icon requires an additional package, see below.
+                            'icon' => 'fab-github',
+                            // (optional) Button color override, default: 'gray'.
+                            'color' => 'primary',
+                            // (optional) Button style override, default: true (outlined).
+                            'outlined' => false,
+                        ],
+                        'google' => [
+                            'label' => 'Google',
+                            // Custom icon requires an additional package, see below.
+                            'icon' => 'fab-google',
+                            // (optional) Button color override, default: 'gray'.
+                            'color' => 'primary',
+                            // (optional) Button style override, default: true (outlined).
+                            'outlined' => false,
+                        ],
+                    ])
+                    // (optional) Enable/disable registration of new (socialite-) users.
+                    ->setRegistrationEnabled(true)
+                    // (optional) Enable/disable registration of new (socialite-) users using a callback.
+                    // In this example, a login flow can only continue if there exists a user (Authenticatable) already.
+                    ->setRegistrationEnabled(fn (string $provider, SocialiteUserContract $oauthUser, ?Authenticatable $user) => (bool) $user)
+                    // (optional) Change the associated model class.
+                    ->setUserModelClass(\App\Models\User::class)
+                    // (optional) Change the associated socialite class (see below).
+                    ->setSocialiteUserModelClass(SocialiteUser::class)
+            );
     }
 }

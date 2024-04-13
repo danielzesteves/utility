@@ -12,10 +12,13 @@
 				 "mikestead.dotenv",
 				 "amiralizadeh9480.laravel-extra-intellisense",
 				 "ryannaddy.laravel-artisan",
+				 "bmewburn.vscode-intelephense-client",
+				 "phproberto.vscode-php-getters-setters"
 				// "onecentlin.laravel5-snippets",
 				// "onecentlin.laravel-blade"
 			],
-			"settings": {}
+			"settings": {
+			}
 		}
 	},
 	"remoteUser": "sail",
